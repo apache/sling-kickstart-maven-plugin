@@ -13,12 +13,11 @@ mvn clean install
 
 ## Usage
 
-The plugin can be used (see **sling-org-apache-sling-feature-starter**
-module in Sling Whiteboard) like this:
+The plugin can be used like this:
 ```
 <plugin>
     <groupId>org.apache.sling</groupId>
-    <artifactId>slingstart-feature-maven-plugin</artifactId>
+    <artifactId>sling-kickstart-maven-plugin</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <extensions>true</extensions>
     <executions>

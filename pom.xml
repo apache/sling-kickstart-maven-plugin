@@ -25,11 +25,11 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
-    <name>Apache Sling Quickstart Maven Plugin</name>
+    <name>Apache Sling Kickstart Maven Plugin</name>
     <description>
-        Maven Plugin providing the ability to start/stop Sling Quickstart
+        Maven Plugin providing the ability to start/stop Sling Kickstart
     </description>
-    <url>https://sling.apache.org/components/slingstart-maven-plugin/</url>
+    <url>https://sling.apache.org/components/sling-kickstart-maven-plugin/</url>
 
     <properties>
         <maven.version>3.0.5</maven.version>
@@ -44,12 +44,12 @@
         <org.apache.sling.feature.modelconverter.version>1.0.8</org.apache.sling.feature.modelconverter.version>
     </properties>
 
-<!--    <scm>-->
-<!--        <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-slingstart-maven-plugin.git</connection>-->
-<!--        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-slingstart-maven-plugin.git</developerConnection>-->
-<!--        <url>https://gitbox.apache.org/repos/asf?p=sling-slingstart-maven-plugin.git</url>-->
-<!--       <tag>HEAD</tag>-->
-<!--    </scm>-->
+    <scm>
+        <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-kickstart-maven-plugin.git</connection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-kickstart-maven-plugin.git</developerConnection>
+        <url>https://gitbox.apache.org/repos/asf?p=sling-kickstart-maven-plugin.git</url>
+       <tag>HEAD</tag>
+    </scm>
 
     <build>
         <plugins>

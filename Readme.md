@@ -6,7 +6,7 @@ and Feature Model code bases separate.
 
 ## Build
 
-This plugin is built like usual with:
+This plugin is built as usual with:
 ```
 mvn clean install
 ```

@@ -41,7 +41,7 @@ public class Main {
     private final int listenerPort;
 
     /** Main class default value */
-    private final static String MAIN_CLASS_DEF = "org.apache.sling.kickstart.app.SlingStarter";
+    private final static String MAIN_CLASS_DEF = "org.apache.sling.kickstart.app.KickstartStarter";
 
     /** Delimeter string */
     private final static String DELIM =
@@ -60,9 +60,11 @@ public class Main {
         this.appJar = new File(args[0]);
         this.listenerPort = Integer.valueOf(args[1]);
         this.verbose = Boolean.valueOf(args[2]);
-        System.out.println("App Jar: " + appJar);
-        System.out.println("Listener Port: " + listenerPort);
-        System.out.println("Verbose: " + verbose);
+        if(verbose) {
+            System.out.println("App Jar: " + appJar);
+            System.out.println("Listener Port: " + listenerPort);
+            System.out.println("Verbose: " + verbose);
+        }
 	    this.startupArgs = new String[args.length-3];
 	    System.arraycopy(args, 3, this.startupArgs, 0, this.startupArgs.length);
     }
@@ -73,7 +75,7 @@ public class Main {
     public void run() throws Exception {
         if (verbose) {
 	        System.out.println(DELIM);
-            System.out.println("Slingstart application: " + this.appJar);
+            System.out.println("Kickstart application: " + this.appJar);
             System.out.println("Main class: " + MAIN_CLASS_DEF);
             System.out.println("Listener Port: " + String.valueOf(this.listenerPort));
             System.out.println("Arguments: " + Arrays.toString(this.startupArgs));

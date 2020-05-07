@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>sling-kickstart-maven-plugin</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Sling Kickstart Maven Plugin</name>

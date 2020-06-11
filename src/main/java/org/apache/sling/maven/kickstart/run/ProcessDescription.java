@@ -22,7 +22,7 @@ import org.apache.maven.plugin.logging.Log;
 import java.io.File;
 
 /**
- * A running launchpad process.
+ * A running kickstart process.
  */
 public class ProcessDescription {
 
@@ -69,7 +69,7 @@ public class ProcessDescription {
             @Override
             public void run() {
                 if ( cfg.getProcess() != null ) {
-                    System.out.println("Terminating launchpad " + cfg.getId());
+                    System.out.println("Terminating kickstart " + cfg.getId());
                     cfg.getProcess().destroy();
                     cfg.setProcess(null);
                 }

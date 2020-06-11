@@ -49,7 +49,7 @@ public class Main {
 
     /**
      * Create a new launcher
-     * First argument is the launchpad jar
+     * First argument is the kickstart jar
      * Second argument is the listener port
      * Third argument is verbose
      */

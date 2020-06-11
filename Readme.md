@@ -30,19 +30,27 @@ The plugin can be used like this:
         </execution>
     </executions>
     <configuration>
-        <launchpadJar>${project.build.directory}/${project.artifactId}-${project.version}.jar</launchpadJar>
         <parallelExecution>false</parallelExecution>
         <servers>
             <server>
                 <port>${http.port}</port>
                 <controlPort>${sling.control.port}</controlPort>
                 <debug>true</debug>
-                <stdOutFile>launchpad.out</stdOutFile>
+                <stdOutFile>kickstart.out</stdOutFile>
             </server>
         </servers>
     </configuration>
 </plugin>
 ```
+
+## Customize Kickstart Dependency
+
+The Plugin comes with the latest released version of the Kickstart dependency.
+That said it provides the ability to use a different Kickstart version. These
+are the two options:
+
+* **kickstartJar**: path to the Kickstart JAR file
+* **kickstartDependency**: Maven Dependency of the Kickstart artifact
 
 ## Notes
 

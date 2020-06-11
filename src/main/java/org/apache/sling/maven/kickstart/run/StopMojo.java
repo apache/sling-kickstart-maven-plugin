@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Stop one or multiple running launchpad instance(s).
+ * Stop one or multiple running kickstart instance(s).
  *
  */
 @Mojo(
@@ -44,25 +44,25 @@ public class StopMojo extends AbstractStartStopMojo {
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
         
         // read configurations
-        final Properties launchpadConfigProps = new Properties();
+        final Properties kickstartConfigProps = new Properties();
         Reader reader = null;
         try {
             reader = new FileReader(this.systemPropertiesFile);
-            launchpadConfigProps.load(reader);
+            kickstartConfigProps.load(reader);
         } catch ( final IOException ioe) {
-            throw new MojoExecutionException("Unable to read launchpad runner configuration properties.", ioe);
+            throw new MojoExecutionException("Unable to read kickstart runner configuration properties.", ioe);
         } finally {
             IOUtils.closeQuietly(reader);
         }
 
-        final int instances = Integer.valueOf(launchpadConfigProps.getProperty("launchpad.instances"));
+        final int instances = Integer.valueOf(kickstartConfigProps.getProperty("kickstart.instances"));
         final List<ProcessDescription> configurations = new ArrayList<ProcessDescription>();
         for(int i=1;i<=instances;i++) {
-            final String id = launchpadConfigProps.getProperty("launchpad.instance.id." + String.valueOf(i));
+            final String id = kickstartConfigProps.getProperty("kickstart.instance.id." + String.valueOf(i));
 
             final ProcessDescription config = ProcessDescriptionProvider.getInstance().getRunConfiguration(id);
             if ( config == null ) {
-                getLog().warn("No launchpad configuration found for instance " + id);
+                getLog().warn("No kickstart configuration found for instance " + id);
             } else {
                 configurations.add(config);
             }
@@ -70,7 +70,7 @@ public class StopMojo extends AbstractStartStopMojo {
 
         blockIfNecessary();
         if (configurations.size() > 0) {
-            getLog().info(new StringBuilder("Stopping ").append(configurations.size()).append(" Launchpad instances").toString());
+            getLog().info(new StringBuilder("Stopping ").append(configurations.size()).append(" Kickstart instances").toString());
 
             for (final ProcessDescription cfg : configurations) {
 
@@ -78,7 +78,7 @@ public class StopMojo extends AbstractStartStopMojo {
                     LauncherCallable.stop(this.getLog(), cfg);
                     ProcessDescriptionProvider.getInstance().removeRunConfiguration(cfg.getId());
                 } catch (Exception e) {
-                    throw new MojoExecutionException("Could not stop launchpad " + cfg.getId(), e);
+                    throw new MojoExecutionException("Could not stop kickstart " + cfg.getId(), e);
                 }
             }
         } else {

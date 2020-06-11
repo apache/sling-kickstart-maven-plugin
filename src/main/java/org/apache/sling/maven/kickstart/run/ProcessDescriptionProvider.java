@@ -39,14 +39,14 @@ public class ProcessDescriptionProvider {
     }
 
     /**
-     * Prepare an ID for a launchpad that will be started, before saving the config.
-     * @param launchpadId the id of the launchpad to lock
+     * Prepare an ID for a kickstart that will be started, before saving the config.
+     * @param kickstartId the id of the kickstart to lock
      * @return id key used to add to configs
      */
-    public synchronized String getId(final String launchpadId) throws Exception {
-        final String id = (launchpadId == null ? DEFAULT_KEY : launchpadId);
+    public synchronized String getId(final String kickstartId) throws Exception {
+        final String id = (kickstartId == null ? DEFAULT_KEY : kickstartId);
         if (configs.containsKey(id) || lockedIds.containsKey(id)) {
-            throw new Exception("Launchpad Id " + id + " is already in use");
+            throw new Exception("Kickstart Id " + id + " is already in use");
         }
 
         String ts = String.valueOf(System.currentTimeMillis());
@@ -56,12 +56,12 @@ public class ProcessDescriptionProvider {
 
     /**
      *
-     * @param launchpadId
+     * @param kickstartId
      * @param unlockKey
      * @return
      */
-    public synchronized boolean cancelId(final String launchpadId, final String unlockKey) {
-        final String id = (launchpadId == null ? DEFAULT_KEY : launchpadId);
+    public synchronized boolean cancelId(final String kickstartId, final String unlockKey) {
+        final String id = (kickstartId == null ? DEFAULT_KEY : kickstartId);
         if (lockedIds.containsKey(id) && lockedIds.get(id).equals(unlockKey)) {
             lockedIds.remove(id);
             return true;
@@ -72,21 +72,21 @@ public class ProcessDescriptionProvider {
 
     /**
      *
-     * @param launchpadId
+     * @param kickstartId
      * @return
      */
-    public synchronized ProcessDescription getRunConfiguration(final String launchpadId) {
-        final String id = (launchpadId == null ? DEFAULT_KEY : launchpadId);
+    public synchronized ProcessDescription getRunConfiguration(final String kickstartId) {
+        final String id = (kickstartId == null ? DEFAULT_KEY : kickstartId);
         return configs.get(id);
     }
 
     /**
      *
-     * @param launchpadId
+     * @param kickstartId
      * @return
      */
-    public synchronized  boolean isRunConfigurationAvailable(final String launchpadId) {
-        return getRunConfiguration(launchpadId) == null && !lockedIds.containsKey(launchpadId);
+    public synchronized  boolean isRunConfigurationAvailable(final String kickstartId) {
+        return getRunConfiguration(kickstartId) == null && !lockedIds.containsKey(kickstartId);
     }
 
     public synchronized void addRunConfiguration(ProcessDescription cfg, final String unlockKey) throws Exception {
@@ -98,8 +98,8 @@ public class ProcessDescriptionProvider {
         configs.put(cfg.getId(), cfg);
     }
 
-    public synchronized void removeRunConfiguration(final String launchpadId) {
-        final String id = (launchpadId == null ? DEFAULT_KEY : launchpadId);
+    public synchronized void removeRunConfiguration(final String kickstartId) {
+        final String id = (kickstartId == null ? DEFAULT_KEY : kickstartId);
         configs.remove(id);
     }
 

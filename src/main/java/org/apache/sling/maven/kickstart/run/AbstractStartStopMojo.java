@@ -30,10 +30,10 @@ import java.util.List;
 public abstract class AbstractStartStopMojo extends AbstractMojo {
 
     /**
-     * Set this to "true" to skip starting the launchpad
+     * Set this to "true" to skip starting the kickstart
      */
     @Parameter(property = "maven.test.skip", defaultValue = "false")
-    protected boolean skipLaunchpad;
+    protected boolean skipKickStart;
 
     /**
      * Parameter containing the list of server configurations
@@ -44,7 +44,7 @@ public abstract class AbstractStartStopMojo extends AbstractMojo {
     /**
      * The system properties file will contain all started instances with their ports etc.
      */
-    @Parameter(defaultValue = "${project.build.directory}/launchpad-runner.properties")
+    @Parameter(defaultValue = "${project.build.directory}/kickstart-runner.properties")
     protected File systemPropertiesFile;
 
     /**
@@ -60,7 +60,7 @@ public abstract class AbstractStartStopMojo extends AbstractMojo {
     
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (this.skipLaunchpad) {
+        if (this.skipKickStart) {
             this.getLog().info("Executing of this mojo is disabled by configuration.");
             return;
         }

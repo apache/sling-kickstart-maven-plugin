@@ -24,25 +24,25 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Common settings for all launchpad instances.
+ * Common settings for all kickstart instances.
  */
-public class LaunchpadEnvironment {
+public class KickstartEnvironment {
 
-    /** The work directory created by starting launchpad. */
+    /** The work directory created by starting kickstart. */
     public static final String WORK_DIR_NAME = "sling";
 
-    private final File launchpadJar;
+    private final File kickstartJar;
     private final boolean cleanWorkingDirectory;
     private final boolean shutdownOnExit;
     private final int readyTimeOutSec;
     private final String debug;
 
-    public LaunchpadEnvironment(final File launchpadJar,
+    public KickstartEnvironment(final File kickstartJar,
                                 final boolean cleanWorkingDirectory,
                                 final boolean shutdownOnExit,
                                 final int readyTimeOutSec,
                                 final String debug) {
-        this.launchpadJar = launchpadJar;
+        this.kickstartJar = kickstartJar;
         this.cleanWorkingDirectory = cleanWorkingDirectory;
         this.shutdownOnExit = shutdownOnExit;
         this.readyTimeOutSec = readyTimeOutSec;
@@ -58,7 +58,7 @@ public class LaunchpadEnvironment {
     }
 
     /**
-     * Check if the launchpad folder exists.
+     * Check if the kickstart folder exists.
      */
     private void ensureFolderExists(final File folder) {
         if (!folder.exists()) {
@@ -70,15 +70,15 @@ public class LaunchpadEnvironment {
         }
     }
 
-    private File installLaunchpad(final File folder) throws IOException {
-        if (this.launchpadJar.getParentFile().getAbsolutePath().equals(folder.getAbsolutePath())) {
-            return this.launchpadJar;
+    private File installKickstart(final File folder) throws IOException {
+        if (this.kickstartJar.getParentFile().getAbsolutePath().equals(folder.getAbsolutePath())) {
+            return this.kickstartJar;
         }
         try {
-            FileUtils.copyFileToDirectory(this.launchpadJar, folder);
-            return new File(folder, this.launchpadJar.getName());
+            FileUtils.copyFileToDirectory(this.kickstartJar, folder);
+            return new File(folder, this.kickstartJar.getName());
         } catch (final IOException ioe) {
-            throw new IOException("Unable to copy " + this.launchpadJar + " to " + folder, ioe);
+            throw new IOException("Unable to copy " + this.kickstartJar + " to " + folder, ioe);
         }
     }
 
@@ -90,19 +90,19 @@ public class LaunchpadEnvironment {
     /**
      * Prepare a new instance.
      * @param folder The target folder for the instance
-     * @return The launchpad jar
+     * @return The kickstart jar
      * @throws IOException if an error occurs.
      */
     public File prepare(final File folder) throws IOException {
         this.ensureFolderExists(folder);
 
-        // copy launchpadJar
-        final File launchpad = this.installLaunchpad(folder);
+        // copy kickstartJar
+        final File kickstart = this.installKickstart(folder);
 
         // install launcher
         this.installLauncher(folder);
 
-        return launchpad;
+        return kickstart;
     }
 
     private void copyResource(final String resource,
@@ -118,7 +118,7 @@ public class LaunchpadEnvironment {
         }
         baseDir.mkdirs();
         final File file = new File(baseDir, resource.substring(lastSlash + 1));
-        final InputStream is = LaunchpadEnvironment.class.getClassLoader().getResourceAsStream(resource);
+        final InputStream is = KickstartEnvironment.class.getClassLoader().getResourceAsStream(resource);
         if ( is == null ) {
             throw new IOException("Resource not found: " + resource);
         }

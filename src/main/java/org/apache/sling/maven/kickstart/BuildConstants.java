@@ -21,39 +21,13 @@ import java.util.List;
 
 public abstract class BuildConstants {
 
-    // CONTEXTS
-    public static final String CONTEXT_GLOBAL = "slingstart:global";
-    public static final String CONTEXT_STANDALONE = "slingstart" + ":standalone";
-    public static final String CONTEXT_WEBAPP = "slingstart" + ":webapp";
-
-    // Model artifact name
-    public static final String MODEL_ARTIFACT_NAME = "slingstart.txt";
-
     // Types
-
     public static final String TYPE_JAR = "jar";
-
-    public static final String TYPE_WAR = "war";
-
-    public static final String TYPE_POM = "pom";
-
-    public static final String TYPE_TXT = "txt";
-
-    public static final String PACKAGING_PARTIAL_SYSTEM = "slingfeature";
 
     public static final String PACKAGING_SLINGQUICKSTART = "slingkickstart";
 
     // Classifiers
-
-    public static final String CLASSIFIER_PARTIAL_SYSTEM = "slingfeature";
-
-    public static final String CLASSIFIER_BASE = "base";
-
     public static final String CLASSIFIER_APP = "app";
-
-    public static final String CLASSIFIER_WEBAPP = "webapp";
-
-//    public static final String CLASSIFIER_MAR = ModelArchiveWriter.DEFAULT_EXTENSION;
 
     // Manifest attributes
 
@@ -76,10 +50,6 @@ public abstract class BuildConstants {
     public static final String ATTR_SPECIFICATION_VENDOR = "Specification-Vendor";
 
     public static final String ATTR_SPECIFICATION_VERSION = "Specification-Version";
-
-    public static final String ATTR_MAIN_CLASS = "Main-Class";
-
-    public static final String ATTR_VALUE_MAIN_CLASS = "org.apache.sling.launchpad.app.Main";
 
     public static final List<String> ATTRS_EXCLUDES = new ArrayList<String>();
     static {

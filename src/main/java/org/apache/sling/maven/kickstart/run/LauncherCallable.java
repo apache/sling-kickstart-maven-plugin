@@ -40,17 +40,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A callable for launchpad an instance
+ * A callable for kickstart an instance
  */
 public class LauncherCallable implements Callable<ProcessDescription> {
 
-    private final LaunchpadEnvironment environment;
+    private final KickstartEnvironment environment;
     private final ServerConfiguration configuration;
     private final Log logger;
 
     public LauncherCallable(final Log logger,
                                   final ServerConfiguration configuration,
-                                  final LaunchpadEnvironment environment) {
+                                  final KickstartEnvironment environment) {
         this.logger = logger;
         this.configuration = configuration;
         this.environment = environment;
@@ -62,27 +62,27 @@ public class LauncherCallable implements Callable<ProcessDescription> {
     @Override
     public ProcessDescription call() throws Exception {
         logger.info("call() started");
-        // fail if launchpad with this id is already started
+        // fail if kickstart with this id is already started
         if (!ProcessDescriptionProvider.getInstance().isRunConfigurationAvailable(configuration.getId())) {
-            throw new Exception("Launchpad with id " + configuration.getId() + " is not available");
+            throw new Exception("Kickstart with id " + configuration.getId() + " is not available");
         }
 
-        // get the launchpad jar
-        final File launchpad = this.environment.prepare(this.configuration.getFolder());
+        // get the kickstart jar
+        final File kickstart = this.environment.prepare(this.configuration.getFolder());
 
-        // Lock the launchpad id
-        final String launchpadKey = ProcessDescriptionProvider.getInstance().getId(configuration.getId());
+        // Lock the kickstart id
+        final String kickstartKey = ProcessDescriptionProvider.getInstance().getId(configuration.getId());
 
-        // start launchpad
-        ProcessDescription cfg = this.start(launchpad);
+        // start kickstart
+        ProcessDescription cfg = this.start(kickstart);
 
-        // Add thread hook to shutdown launchpad
+        // Add thread hook to shutdown kickstart
         if (environment.isShutdownOnExit()) {
             cfg.installShutdownHook();
         }
 
         // Add configuration to the config provider
-        ProcessDescriptionProvider.getInstance().addRunConfiguration(cfg, launchpadKey);
+        ProcessDescriptionProvider.getInstance().addRunConfiguration(cfg, kickstartKey);
 
         logger.info("Before Check if started");
         boolean started = false;
@@ -106,10 +106,10 @@ public class LauncherCallable implements Callable<ProcessDescription> {
             logger.info("Check Done, started: " + started + ", finihsed: " + finished);
 
             if ( finished ) {
-                throw new Exception("Launchpad did exit unexpectedly.");
+                throw new Exception("Kickstart did exit unexpectedly.");
             }
             if ( !started ) {
-                throw new Exception("Launchpad did not start successfully in " + this.environment.getReadyTimeOutSec() + " seconds.");
+                throw new Exception("Kickstart did not start successfully in " + this.environment.getReadyTimeOutSec() + " seconds.");
             }
             // now check for the availability of the HTTP port
             boolean httpAvailable = isLocalhostPortAvailable(Integer.valueOf(this.configuration.getPort()));
@@ -119,15 +119,15 @@ public class LauncherCallable implements Callable<ProcessDescription> {
                 httpAvailable = isLocalhostPortAvailable(Integer.valueOf(this.configuration.getPort()));
             }
             if ( !httpAvailable ) {
-                throw new Exception("Launchpad did not start http service on port " + this.configuration.getPort() + " successfully in " + this.environment.getReadyTimeOutSec() + " seconds.");
+                throw new Exception("Kickstart did not start http service on port " + this.configuration.getPort() + " successfully in " + this.environment.getReadyTimeOutSec() + " seconds.");
             }
-            this.logger.info("Started Launchpad '" + configuration.getId() +
+            this.logger.info("Started Kickstart '" + configuration.getId() +
                     "' at port " + configuration.getPort()+ " [run modes: " + configuration.getRunmode()+ "]");
         } finally {
 //            // stop control port
 //            cfg.getControlClient().shutdownServer();
 
-            // call launchpad stop routine if not properly started
+            // call kickstart stop routine if not properly started
             if (!started) {
                 stop(this.logger, cfg);
                 ProcessDescriptionProvider.getInstance().removeRunConfiguration(cfg.getId());
@@ -201,7 +201,7 @@ public class LauncherCallable implements Callable<ProcessDescription> {
         args.add(String.valueOf(cfg.getControlClient().getPort()));
         args.add("true");
 
-        // from here on launchpad properties
+        // from here on kickstart properties
         add(args, this.configuration.getOpts());
 
         if(this.configuration.getAdditionalFeatureFile() != null) {
@@ -235,8 +235,8 @@ public class LauncherCallable implements Callable<ProcessDescription> {
         builder.command(args.toArray(new String[args.size()]));
         builder.directory(this.configuration.getFolder());
         builder.redirectErrorStream(true);
-        logger.info("Starting Launchpad " + this.configuration.getId() +  "...");
-        logger.info("Starting Launchpad, arguments: " + args);
+        logger.info("Starting Kickstart " + this.configuration.getId() +  "...");
+        logger.info("Starting Kickstart, arguments: " + args);
         String stdOutFile = this.configuration.getStdOutFile();
         if (StringUtils.isNotBlank(stdOutFile)) {
             File absoluteStdOutFile = new File(builder.directory(), stdOutFile);
@@ -248,8 +248,8 @@ public class LauncherCallable implements Callable<ProcessDescription> {
             builder.redirectOutput(Redirect.INHERIT);
         }
 
-        logger.debug("Launchpad cmd: " + builder.command());
-        logger.debug("Launchpad dir: " + builder.directory());
+        logger.debug("Kickstart cmd: " + builder.command());
+        logger.debug("Kickstart dir: " + builder.directory());
 
         try {
             logger.info("Before Builder start()");
@@ -260,7 +260,7 @@ public class LauncherCallable implements Callable<ProcessDescription> {
                 cfg.getProcess().destroy();
                 cfg.setProcess(null);
             }
-            throw new Exception("Could not start the Launchpad", e);
+            throw new Exception("Could not start the Kickstart", e);
         }
 
         return cfg;
@@ -270,7 +270,7 @@ public class LauncherCallable implements Callable<ProcessDescription> {
         boolean isNew = false;
 
         if (cfg.getProcess() != null || isNew ) {
-            LOG.info("Stopping Launchpad '" + cfg.getId() + "'");
+            LOG.info("Stopping Kickstart '" + cfg.getId() + "'");
             boolean destroy = true;
             final int twoMinutes = 2 * 60 * 1000;
             final File controlPortFile = getControlPortFile(cfg.getDirectory());
@@ -372,7 +372,7 @@ public class LauncherCallable implements Callable<ProcessDescription> {
                 cfg.setProcess(null);
             }
         } else {
-            LOG.warn("Launchpad already stopped");
+            LOG.warn("Kickstart already stopped");
         }
     }
 

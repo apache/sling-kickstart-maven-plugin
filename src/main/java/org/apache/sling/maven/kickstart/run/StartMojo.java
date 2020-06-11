@@ -52,7 +52,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Start one or multiple launchpad instance(s).
+ * Start one or multiple Kickstart instance(s).
  */
 @Mojo(
         name = "start",
@@ -61,52 +61,60 @@ import java.util.concurrent.Future;
     )
 public class StartMojo extends AbstractStartStopMojo {
 
+    private static Dependency defaultKickstart = new Dependency();
+
+    static {
+        defaultKickstart.setGroupId("org.apache.sling");
+        defaultKickstart.setArtifactId("org.apache.sling.kickstart");
+        defaultKickstart.setVersion("0.0.3-SNAPSHOT");
+    }
+
     /**
      * Overwrites debug parameter of all server configurations (if set).
      * Attaches a debugger to the forked JVM. If set to {@code "true"}, the process will allow a debugger to connect on port 8000.
      * If set to some other string, that string will be appended to the server's {@code vmOpts}, allowing you to configure arbitrary debugging options.
      */
-    @Parameter(property = "launchpad.debug")
+    @Parameter(property = "kickstart.debug")
     protected String debug;
 
     /**
-     * Ready timeout in seconds. If the launchpad has not been started in this
+     * Ready timeout in seconds. If the kickstart has not been started in this
      * time, it's assumed that the startup failed.
      */
-    @Parameter(property = "launchpad.ready.timeout", defaultValue = "600")
-    private int launchpadReadyTimeOutSec;
+    @Parameter(property = "kickstart.ready.timeout", defaultValue = "600")
+    private int kickstartReadyTimeOutSec;
 
     /**
-     * The launchpad jar. This option has precedence over "launchpadDependency".
+     * The kickstart jar. This option has precedence over "kickstartDependency".
      */
-    @Parameter(property = "launchpad.jar")
-    private File launchpadJar;
+    @Parameter(property = "kickstart.jar")
+    private File kickstartJar;
 
     /**
-     * The launchpad jar as a dependency. This is only used if "launchpadJar" is not
+     * The kickstart jar as a dependency. This is only used if "kickstartJar" is not
      * specified.
      */
     @Parameter
-    private Dependency launchpadDependency;
+    private Dependency kickstartDependency = defaultKickstart;
 
     /**
      * Clean the working directory before start.
      */
-    @Parameter(property = "launchpad.clean.workdir", defaultValue = "false")
+    @Parameter(property = "kickstart.clean.workdir", defaultValue = "false")
     private boolean cleanWorkingDirectory;
 
     /**
-     * Keep the launchpad running.
+     * Keep the kickstart running.
      * @deprecated Use {@link AbstractStartStopMojo# blockUntilKeyIsPressed} instead.
      */
     @Deprecated
-    @Parameter(property = "launchpad.keep.running", defaultValue = "false")
-    private boolean keepLaunchpadRunning;
+    @Parameter(property = "kickstart.keep.running", defaultValue = "false")
+    private boolean keepKickstartRunning;
 
     /**
-     * Set the execution of launchpad instances to be run in parallel (threads)
+     * Set the execution of kickstart instances to be run in parallel (threads)
      */
-    @Parameter(property = "launchpad.parallelExecution", defaultValue = "true")
+    @Parameter(property = "kickstart.parallelExecution", defaultValue = "true")
     private boolean parallelExecution;
 
     /**
@@ -166,30 +174,30 @@ public class StartMojo extends AbstractStartStopMojo {
         }
 
         // get configurations
-        final Collection<ServerConfiguration> configurations = getLaunchpadConfigurations();
+        final Collection<ServerConfiguration> configurations = getKickstartConfigurations();
 
         // create the common environment
-        getLog().info("Keep Launchpad Running: " + this.keepLaunchpadRunning);
-        final LaunchpadEnvironment env = new LaunchpadEnvironment(this.findLaunchpadJar(),
+        getLog().info("Keep kickstart Running: " + this.keepKickstartRunning);
+        final KickstartEnvironment env = new KickstartEnvironment(this.findKickstartJar(),
                 this.cleanWorkingDirectory,
-                !this.keepLaunchpadRunning,
-                this.launchpadReadyTimeOutSec,
+                !this.keepKickstartRunning,
+                this.kickstartReadyTimeOutSec,
                 this.debug);
 
         // create callables
         final Collection<LauncherCallable> tasks = new LinkedList<LauncherCallable>();
 
-        for (final ServerConfiguration launchpadConfiguration : configurations) {
-            validateConfiguration(launchpadConfiguration);
+        for (final ServerConfiguration kickstartConfiguration : configurations) {
+            validateConfiguration(kickstartConfiguration);
 
-            tasks.add(createTask(launchpadConfiguration, env));
+            tasks.add(createTask(kickstartConfiguration, env));
         }
 
-        // create the launchpad runner properties
-        this.createLaunchpadRunnerProperties(configurations);
+        // create the kickstart runner properties
+        this.createKickstartRunnerProperties(configurations);
 
         if (parallelExecution) {
-            // ExecutorService for starting launchpad instances in parallel
+            // ExecutorService for starting kickstart instances in parallel
             final ExecutorService executor = Executors.newCachedThreadPool();
             try {
                 final List<Future<ProcessDescription>> resultsCollector = executor.invokeAll(tasks);
@@ -216,8 +224,8 @@ public class StartMojo extends AbstractStartStopMojo {
                 }
             }
         }
-        if (this.keepLaunchpadRunning) {
-            getLog().info("Press CTRL-C to stop launchpad instance(s)...");
+        if (this.keepKickstartRunning) {
+            getLog().info("Press CTRL-C to stop kickstart instance(s)...");
             while ( true && this.isRunning(tasks)) {
                 try {
                     Thread.sleep(5000);
@@ -230,7 +238,7 @@ public class StartMojo extends AbstractStartStopMojo {
     }
 
     /**
-     * Are all launchpads still running?
+     * Are all kickstarts still running?
      */
     private boolean isRunning(final Collection<LauncherCallable> tasks) {
         for(final LauncherCallable task : tasks) {
@@ -241,7 +249,7 @@ public class StartMojo extends AbstractStartStopMojo {
         return true;
     }
 
-    private void createLaunchpadRunnerProperties(final Collection<ServerConfiguration> configurations)
+    private void createKickstartRunnerProperties(final Collection<ServerConfiguration> configurations)
     throws MojoExecutionException {
         // create properties
         OutputStream writer = null;
@@ -250,25 +258,25 @@ public class StartMojo extends AbstractStartStopMojo {
             writer = new FileOutputStream(this.systemPropertiesFile);
 
             // disable sling startup check
-            props.put("launchpad.skip.startupcheck", "true");
+            props.put("kickstart.skip.startupcheck", "true");
 
             // write out all instances
             int index = 0;
-            for (final ServerConfiguration launchpadConfiguration : configurations) {
+            for (final ServerConfiguration kickstartConfiguration : configurations) {
                 index++;
-                props.put("launchpad.instance.id." + String.valueOf(index), launchpadConfiguration.getId());
-                String runMode = launchpadConfiguration.getRunmode();
+                props.put("kickstart.instance.id." + String.valueOf(index), kickstartConfiguration.getId());
+                String runMode = kickstartConfiguration.getRunmode();
                 if ( runMode == null ) {
                     runMode = "";
                 }
-                props.put("launchpad.instance.runmode." + String.valueOf(index), runMode);
-                props.put("launchpad.instance.server." + String.valueOf(index), launchpadConfiguration.getServer());
-                props.put("launchpad.instance.port." + String.valueOf(index), launchpadConfiguration.getPort());
-                props.put("launchpad.instance.contextPath." + String.valueOf(index), launchpadConfiguration.getContextPath());
-                final String url = createServerUrl(launchpadConfiguration);
-                props.put("launchpad.instance.url." + String.valueOf(index), url);
+                props.put("kickstart.instance.runmode." + String.valueOf(index), runMode);
+                props.put("kickstart.instance.server." + String.valueOf(index), kickstartConfiguration.getServer());
+                props.put("kickstart.instance.port." + String.valueOf(index), kickstartConfiguration.getPort());
+                props.put("kickstart.instance.contextPath." + String.valueOf(index), kickstartConfiguration.getContextPath());
+                final String url = createServerUrl(kickstartConfiguration);
+                props.put("kickstart.instance.url." + String.valueOf(index), url);
             }
-            props.put("launchpad.instances", String.valueOf(index));
+            props.put("kickstart.instances", String.valueOf(index));
 
             props.store(writer, null);
         } catch (final IOException e) {
@@ -301,93 +309,93 @@ public class StartMojo extends AbstractStartStopMojo {
     }
 
     /**
-     * @param launchpadConfiguration
+     * @param kickstartConfiguration
      */
-    private LauncherCallable createTask(final ServerConfiguration launchpadConfiguration,
-                                               final LaunchpadEnvironment env)
+    private LauncherCallable createTask(final ServerConfiguration kickstartConfiguration,
+                                               final KickstartEnvironment env)
     throws MojoExecutionException, MojoFailureException {
-        final String id = launchpadConfiguration.getId();
+        final String id = kickstartConfiguration.getId();
         getLog().debug(new StringBuilder("Starting ").append(id).
-                append(" with runmode ").append(launchpadConfiguration.getRunmode()).
-                append(" on port ").append(launchpadConfiguration.getPort()).
-                append(" in folder ").append(launchpadConfiguration.getFolder().getAbsolutePath()).toString());
+                append(" with runmode ").append(kickstartConfiguration.getRunmode()).
+                append(" on port ").append(kickstartConfiguration.getPort()).
+                append(" in folder ").append(kickstartConfiguration.getFolder().getAbsolutePath()).toString());
 
         // create task
-        return new LauncherCallable(this.getLog(), launchpadConfiguration, env);
+        return new LauncherCallable(this.getLog(), kickstartConfiguration, env);
 
     }
 
     /**
      * Validate a configuration
-     * @param launchpadConfiguration The launchpad configuration
+     * @param kickstartConfiguration The kickstart configuration
      * @throws MojoExecutionException
      */
-    private void validateConfiguration(final ServerConfiguration launchpadConfiguration)
+    private void validateConfiguration(final ServerConfiguration kickstartConfiguration)
     throws MojoExecutionException {
-        if ( launchpadConfiguration.getPort() == null ) {
-            launchpadConfiguration.setPort(String.valueOf(PortHelper.getNextAvailablePort()));
+        if ( kickstartConfiguration.getPort() == null ) {
+            kickstartConfiguration.setPort(String.valueOf(PortHelper.getNextAvailablePort()));
         }
 
-        if ( launchpadConfiguration.getControlPort() == null ) {
-            launchpadConfiguration.setControlPort(String.valueOf(PortHelper.getNextAvailablePort()));
+        if ( kickstartConfiguration.getControlPort() == null ) {
+            kickstartConfiguration.setControlPort(String.valueOf(PortHelper.getNextAvailablePort()));
         }
 
-        // set the id of the launchpad
-        if ( launchpadConfiguration.getId() == null || launchpadConfiguration.getId().trim().length() == 0 ) {
-            String runMode = launchpadConfiguration.getRunmode();
+        // set the id of the kickstart
+        if ( kickstartConfiguration.getId() == null || kickstartConfiguration.getId().trim().length() == 0 ) {
+            String runMode = kickstartConfiguration.getRunmode();
             if ( runMode == null ) {
                 runMode = "_";
             }
-            final String id = new StringBuilder(runMode.replace(',', '_')).append('-').append(launchpadConfiguration.getPort()).toString();
-            launchpadConfiguration.setId(id);
+            final String id = new StringBuilder(runMode.replace(',', '_')).append('-').append(kickstartConfiguration.getPort()).toString();
+            kickstartConfiguration.setId(id);
         }
 
         // populate folder if not set
-        if (launchpadConfiguration.getFolder() == null) {
-            final File folder = new File(new StringBuilder(this.project.getBuild().getDirectory()).append('/').append(launchpadConfiguration.getId()).toString());
-            launchpadConfiguration.setFolder(folder);
+        if (kickstartConfiguration.getFolder() == null) {
+            final File folder = new File(new StringBuilder(this.project.getBuild().getDirectory()).append('/').append(kickstartConfiguration.getId()).toString());
+            kickstartConfiguration.setFolder(folder);
         }
         // context path should not be null
-        if ( launchpadConfiguration.getContextPath() == null ) {
-            launchpadConfiguration.setContextPath("");
+        if ( kickstartConfiguration.getContextPath() == null ) {
+            kickstartConfiguration.setContextPath("");
         }
 
-        if ( launchpadConfiguration.getInstances() < 0 ) {
-            launchpadConfiguration.setInstances(1);
+        if ( kickstartConfiguration.getInstances() < 0 ) {
+            kickstartConfiguration.setInstances(1);
         }
     }
 
     /**
-     * Finds the launchpad.jar artifact of the project being built.
+     * Finds the kickstart.jar artifact of the project being built.
      *
-     * @return the launchpad.jar artifact
-     * @throws MojoFailureException if a launchpad.jar artifact was not found
+     * @return the kickstart.jar artifact
+     * @throws MojoFailureException if a kickstart.jar artifact was not found
      */
-    private File findLaunchpadJar() throws MojoFailureException, MojoExecutionException {
+    private File findKickstartJar() throws MojoFailureException, MojoExecutionException {
 
-        // If a launchpad JAR is specified, use it
-        if (launchpadJar != null) {
-            getLog().info("Using launchpad jar from '" +  launchpadJar + "' given as configuration parameter!");
-            return launchpadJar;
+        // If a kickstart JAR is specified, use it
+        if (kickstartJar != null) {
+            getLog().info("Using kickstart jar from '" +  kickstartJar + "' given as configuration parameter!");
+            return kickstartJar;
         }
 
-        // If a launchpad dependency is configured, resolve it
-        if (launchpadDependency != null) {
-            getLog().info("Using launchpad dependency '" +  launchpadDependency + "' given as configuration parameter!");
-            return getArtifact(launchpadDependency).getFile();
+        // If a kickstart dependency is configured, resolve it
+        if (kickstartDependency != null) {
+            getLog().info("Using kickstart dependency '" +  kickstartDependency + "' given as configuration parameter!");
+            return getArtifact(kickstartDependency).getFile();
         }
 
         // If the current project is a slingstart project, use its JAR artifact
         if (this.project.getPackaging().equals(BuildConstants.PACKAGING_SLINGQUICKSTART)) {
             File jarFile = project.getArtifact().getFile();
             if (jarFile != null && jarFile.exists()) {
-                getLog().info("Using launchpad jar being generated as this project's primary artifact: '" +  jarFile + "'!");
+                getLog().info("Using kickstart jar being generated as this project's primary artifact: '" +  jarFile + "'!");
                 return jarFile;
             }
             else {
                 jarFile = new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".jar");
                 if (jarFile.exists()) {
-                    getLog().info("Using launchpad jar being generated as this project's primary artifact: '" +  jarFile + "'!");
+                    getLog().info("Using kickstart jar being generated as this project's primary artifact: '" +  jarFile + "'!");
                     return jarFile;
                 }
             }
@@ -397,7 +405,7 @@ public class StartMojo extends AbstractStartStopMojo {
         for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
             // find the attached artifact with classifier "standalone"
             if (BuildConstants.TYPE_JAR.equals(attachedArtifact.getType()) && BuildConstants.CLASSIFIER_APP.equals(attachedArtifact.getClassifier())) {
-                getLog().info("Using launchpad jar being attached as additional project artifact: '" +  attachedArtifact.getFile() + "'!");
+                getLog().info("Using kickstart jar being attached as additional project artifact: '" +  attachedArtifact.getFile() + "'!");
                 return attachedArtifact.getFile();
             }
         }
@@ -406,7 +414,7 @@ public class StartMojo extends AbstractStartStopMojo {
 //AS TODO: Is Package Mojo still needed / supported ?
 //        File localJarFile = PackageMojo.getNonPrimaryBuildFile(project, ".jar");
 //        if (localJarFile.exists()) {
-//            getLog().info("Using local launchpad jar being created in predefined directory: '" +  localJarFile + "'!");
+//            getLog().info("Using local kickstart jar being created in predefined directory: '" +  localJarFile + "'!");
 //            return localJarFile;
 //        }
         
@@ -420,21 +428,21 @@ public class StartMojo extends AbstractStartStopMojo {
                 d.setVersion(dep.getVersion());
                 d.setScope(Artifact.SCOPE_RUNTIME);
                 d.setType(BuildConstants.TYPE_JAR);
-                getLog().info("Using launchpad jar from first dependency of type 'slingstart': '"+ d +"'!");
+                getLog().info("Using kickstart jar from first dependency of type 'slingstart': '"+ d +"'!");
                 return getArtifact(d).getFile();
             }
         }
 
-        // Launchpad has not been found, throw an exception
-        throw new MojoFailureException("Could not find the launchpad jar. " +
-                "Either specify the 'launchpadJar' configuration or use this inside a slingstart project.");
+        // kickstart has not been found, throw an exception
+        throw new MojoFailureException("Could not find the kickstart jar. " +
+                "Either specify the 'kickstartJar' configuration or use this inside a slingstart project.");
     }
 
     /**
      * Get all configurations
      * @return Collection of configurations.
      */
-    private Collection<ServerConfiguration> getLaunchpadConfigurations() {
+    private Collection<ServerConfiguration> getKickstartConfigurations() {
         final List<ServerConfiguration> configs = new ArrayList<ServerConfiguration>();
         if ( this.servers != null && !this.servers.isEmpty() ) {
             for(final ServerConfiguration config : this.servers) {

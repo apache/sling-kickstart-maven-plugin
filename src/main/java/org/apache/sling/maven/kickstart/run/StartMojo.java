@@ -66,7 +66,7 @@ public class StartMojo extends AbstractStartStopMojo {
     static {
         defaultKickstart.setGroupId("org.apache.sling");
         defaultKickstart.setArtifactId("org.apache.sling.kickstart");
-        defaultKickstart.setVersion("0.0.3-SNAPSHOT");
+        defaultKickstart.setVersion("0.0.4");
     }
 
     /**

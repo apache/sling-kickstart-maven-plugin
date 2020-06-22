@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>sling-kickstart-maven-plugin</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Sling Kickstart Maven Plugin</name>
@@ -51,7 +51,7 @@
         <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-kickstart-maven-plugin.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-kickstart-maven-plugin.git</developerConnection>
         <url>https://gitbox.apache.org/repos/asf?p=sling-kickstart-maven-plugin.git</url>
-       <tag>sling-kickstart-maven-plugin-0.0.4</tag>
+       <tag>sling-kickstart-maven-plugin-0.0.2</tag>
     </scm>
 
     <build>

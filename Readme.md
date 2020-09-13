@@ -22,7 +22,7 @@ The plugin can be used like this:
 <plugin>
     <groupId>org.apache.sling</groupId>
     <artifactId>sling-kickstart-maven-plugin</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.8</version>
     <extensions>true</extensions>
     <executions>
         <execution>

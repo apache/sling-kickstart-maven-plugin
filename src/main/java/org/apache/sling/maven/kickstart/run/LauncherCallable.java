@@ -124,9 +124,6 @@ public class LauncherCallable implements Callable<ProcessDescription> {
             this.logger.info("Started Kickstart '" + configuration.getId() +
                     "' at port " + configuration.getPort()+ " [run modes: " + configuration.getRunmode()+ "]");
         } finally {
-//            // stop control port
-//            cfg.getControlClient().shutdownServer();
-
             // call kickstart stop routine if not properly started
             if (!started) {
                 stop(this.logger, cfg);
